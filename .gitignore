@@ -1,0 +1,11 @@
+.idea/
+.vscode/
+.vs/
+
+*.exe
+*.lib
+*.exp
+*.pdb
+*.out
+
+*~
