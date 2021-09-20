@@ -1,5 +1,6 @@
 #pragma once
 
+#include <iostream>
 #include <map>
 #include <memory>
 #include <optional>
@@ -37,9 +38,10 @@ enum class JsonTokenType {
 struct JsonToken {
     std::string value;
     JsonTokenType type;
-    int location;
-    std::shared_ptr<std::string> full_source;
+    size_t location;
 };
+
+std::ostream& operator<<(std::ostream& os, const JsonToken& token);
 
 std::tuple<std::vector<JsonToken>, std::string> lex(const std::string& input);
 std::tuple<JsonValue, int, std::string> parse(const std::vector<JsonToken>& tokens, int index = 0);
