@@ -75,6 +75,82 @@ std::string token_type_to_string(JsonTokenType type) {
     }
 }
 
+std::tuple<std::vector<JsonValue>, size_t, std::string> parse_array(std::vector<JsonToken> &tokens, size_t index) {
+    std::vector<JsonValue> ret;
+    while (index < tokens.size()) {
+        auto &token = tokens[index];
+        if (token.type == JsonTokenType::kSyntax) {
+            if (token.value == "]") {
+                return {ret, index + 1, ""};
+            }
+
+            if (token.value == ",") {
+                ++index;
+                token = tokens[index];
+            } else if (tokens.size() > 0) {
+                return {{}, index, "invalid array"};
+            }
+        }
+
+        auto [value, new_index, error] = parse(tokens, index);
+        if (!error.empty()) {
+            return {{}, index, error};
+        }
+
+        ret.push_back(std::move(value));
+        index = new_index;
+    }
+
+    return {{}, index, "invalid array"};
+}
+
+std::tuple<std::map<std::string, JsonValue>, size_t, std::string> parse_object(std::vector<JsonToken> &tokens, size_t index) {
+    std::map<std::string, JsonValue> ret;
+    while (index < tokens.size()) {
+        auto &token = tokens[index];
+        if (token.type == JsonTokenType::kSyntax) {
+            if (token.value == "}") {
+                return {ret, index + 1, ""};
+            }
+
+            if (token.value == ",") {
+                ++index;
+                token = tokens[index];
+            } else {
+                return {{}, index, "invalid object"};
+            }
+        }
+
+        auto [key, new_index, error] = parse(tokens, index);
+        if (!error.empty()) {
+            return {{}, index, error};
+        }
+
+        if (key.type != JsonValueType::kString) {
+            return {{}, index, "key must be string"};
+        }
+
+        index = new_index;
+        token = tokens[index];
+
+        if (!(token.type == JsonTokenType::kSyntax && token.value == ":")) {
+            return {{}, index, "missing colon"};
+        }
+
+        token = tokens[++index];
+
+        auto [value, new_index1, error1] = parse(tokens, index);
+        if (!error1.empty()) {
+            return {{}, index, error};
+        }
+
+        ret[key.string.value()] = value;
+        index = new_index1;
+    }
+
+    return {ret, index + 1, ""};
+}
+
 } // namespace
 
 std::ostream &operator<<(std::ostream &os, const JsonToken &token) {
@@ -149,6 +225,51 @@ std::tuple<std::vector<JsonToken>, std::string> lex(const std::string &raw_json)
     }
 
     return {tokens, ""};
+}
+
+std::tuple<JsonValue, size_t, std::string> parse(std::vector<JsonToken> &tokens, size_t index) {
+    const auto &token = tokens[index];
+    switch (token.type) {
+    case JsonTokenType::kNumber: {
+        double num = std::stod(token.value);
+        return {JsonValue(num), index + 1, ""};
+    }
+    case JsonTokenType::kBoolean: {
+        bool b = token.value == "true";
+        return {JsonValue(b), index + 1, ""};
+    }
+    case JsonTokenType::kNull: {
+        return {JsonValue(), index + 1, ""};
+    }
+    case JsonTokenType::kString: {
+        return {JsonValue(token.value), index + 1, ""};
+    }
+    case JsonTokenType::kSyntax: {
+        if (token.value == "[") {
+            auto [array, new_index, error] = parse_array(tokens, index + 1);
+            return {JsonValue(array), new_index, error};
+        }
+        if (token.value == "{") {
+            auto [object, new_index, error] = parse_object(tokens, index + 1);
+            return {JsonValue(object), new_index, error};
+        }
+        break;
+    }
+    default:
+        break;
+    }
+
+    return {{}, index, "invalid format"};
+}
+
+std::tuple<JsonValue, std::string> parse(const std::string &input) {
+    auto [tokens, error] = lex(input);
+    if (!error.empty()) {
+        return {{}, error};
+    }
+
+    auto [value, _, parse_error] = parse(tokens);
+    return {value, parse_error};
 }
 
 std::string deparse(const JsonValue &value, const std::string &whitespace) {

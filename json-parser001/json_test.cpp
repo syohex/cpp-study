@@ -42,15 +42,7 @@ void test_lex() {
             JsonTokenType::kSyntax,  JsonTokenType::kString,  JsonTokenType::kSyntax,
         };
         std::string values[9] = {
-            "[",
-            "true",
-            ",",
-            "false",
-            ",",
-            "1234",
-            ",",
-            "foo",
-            "]",
+            "[", "true", ",", "false", ",", "1234", ",", "foo", "]",
         };
 
         for (size_t i = 0; i < 9; ++i) {
@@ -77,10 +69,44 @@ void test_lex() {
     }
 }
 
+void test_parse() {
+    {
+        std::vector<std::string> input{"1", "true", "false", "\"foo\"", "null"};
+        std::vector<JsonValue> expected{JsonValue(1.0), JsonValue(true), JsonValue(false), JsonValue(std::string("foo")),
+                                        JsonValue()};
+        for (size_t i = 0; i < input.size(); ++i) {
+            auto [value, error] = parse(input[i]);
+            assert(error.empty());
+            assert(value == expected[i]);
+        }
+    }
+    {
+        auto [value, error] = parse("[1, 2, true, null, \"foo\"]");
+        assert(error.empty());
+        assert(value.type == JsonValueType::kArray);
+        assert(value.array.value().size() == 5);
+
+        std::vector<JsonValue> expected{JsonValue(1.0), JsonValue(2.0), JsonValue(true), JsonValue(),
+                                        JsonValue(std::string("foo"))};
+        for (size_t i = 0; i < 5; ++i) {
+            assert(value.array.value()[i] == expected[i]);
+        }
+    }
+    {
+        auto [value, error] = parse("{\"name\": \"bob\", \"age\": 88}");
+        assert(error.empty());
+        assert(value.type == JsonValueType::kObject);
+        const auto &object = value.object.value();
+        assert(object.at("name") == JsonValue(std::string("bob")));
+        assert(object.at("age") == JsonValue(88.0));
+    }
+}
+
 } // namespace
 
 int main() {
     test_lex();
+    test_parse();
 
     std::cout << "OK" << std::endl;
     return 0;
