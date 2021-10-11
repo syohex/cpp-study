@@ -1,0 +1,9 @@
+create_timestamp,player_id,score
+2021/01/01,player0001,10
+2021/01/01,player0001,30
+2021/01/01,player0001,51
+2021/01/01,player0002,40
+2021/01/01,player0003,20
+2021/01/01,player0004,15
+2021/01/01,player0005,7
+2021/01/01,player0005,0
