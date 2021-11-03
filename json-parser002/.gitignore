@@ -1,0 +1,7 @@
+*.vcxproj
+*.vcxproj.filters
+*.sln
+
+x64/
+test.dir/
+json.dir/
