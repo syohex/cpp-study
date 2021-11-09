@@ -3,7 +3,7 @@
 JsonValue::JsonValue() : JsonValue(JsonType::kNull) {
 }
 
-JsonValue::JsonValue(std::nullptr_t value) : JsonValue(JsonType::kNull) {
+JsonValue::JsonValue(std::nullptr_t) : JsonValue(JsonType::kNull) {
 }
 
 JsonValue::JsonValue(JsonType type) : type_(type), u_({}) {
@@ -98,7 +98,7 @@ JsonValue &JsonValue::operator=(const JsonValue &other) {
     return *this;
 }
 
-JsonValue::JsonValue(JsonValue &&other) noexcept {
+JsonValue::JsonValue(JsonValue &&other) noexcept : type_(JsonType::kNull), u_({}) {
     std::swap(type_, other.type_);
     std::swap(u_, other.u_);
 }

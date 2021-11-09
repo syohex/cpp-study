@@ -31,7 +31,7 @@ class JsonValue {
     JsonValue();
 
     // null constructor
-    explicit JsonValue(std::nullptr_t value);
+    explicit JsonValue(std::nullptr_t);
 
     // boolean constructor
     explicit JsonValue(bool value);

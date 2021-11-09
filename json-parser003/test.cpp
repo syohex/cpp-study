@@ -101,6 +101,28 @@ void TestArray() {
     }
 }
 
+void TestObject() {
+    JsonObject expected{
+        {"name", JsonValue("tom")},
+        {"age", JsonValue(99.0)},
+    };
+
+    struct TestData {
+        std::string input;
+        JsonObject expected;
+    } test_data[] = {
+        {R"({"name": "tom", "age": 99.0})", expected},
+    };
+
+    for (const auto &t : test_data) {
+        JsonValue v;
+        std::string error = ParseJson(t.input, v);
+        assert(error.empty());
+        assert(v.IsObject());
+        assert(v.Get<JsonObject>() == t.expected);
+    }
+}
+
 } // namespace
 
 int main() {
@@ -110,5 +132,7 @@ int main() {
     TestInteger();
     TestString();
     TestArray();
+    TestObject();
+
     return 0;
 }
