@@ -12,3 +12,7 @@ test: json_test
 .PHONY: clean
 clean:
 	-rm -f json_test
+
+.PHONY: format
+format:
+	-clang-format -i *.cpp *.h

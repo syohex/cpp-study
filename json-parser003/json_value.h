@@ -60,6 +60,8 @@ class JsonValue {
     JsonValue &operator=(JsonValue &&other) noexcept;
     ~JsonValue();
 
+    bool operator==(const JsonValue &other) const;
+
     // Predicate
     bool IsNull() const noexcept;
     bool IsBoolean() const noexcept;

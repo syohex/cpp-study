@@ -113,6 +113,29 @@ JsonValue::~JsonValue() {
     Clear();
 }
 
+bool JsonValue::operator==(const JsonValue &other) const {
+    if (type_ != other.type_) {
+        return false;
+    }
+
+    switch (type_) {
+    case JsonType::kBoolean:
+        return u_.boolean_ == other.u_.boolean_;
+    case JsonType::kNumber:
+        return u_.number_ == other.u_.number_;
+    case JsonType::kInteger:
+        return u_.int64_ == other.u_.int64_;
+    case JsonType::kString:
+        return *u_.string_ == *other.u_.string_;
+    case JsonType::kArray:
+        return *u_.array_ == *other.u_.array_;
+    case JsonType::kObject:
+        return *u_.object_ == *other.u_.object_;
+    default:
+        return true;
+    }
+}
+
 void JsonValue::Clear() {
     switch (type_) {
     case JsonType::kString:
