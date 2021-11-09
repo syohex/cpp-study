@@ -99,7 +99,7 @@ class JsonValue {
         return type_ == (json_type);                                                                                               \
     }
 
-IS(nullptr_t, JsonType::kNull)
+IS(std::nullptr_t, JsonType::kNull)
 IS(bool, JsonType::kBoolean)
 IS(std::int64_t, JsonType::kInteger)
 IS(std::string, JsonType::kString)

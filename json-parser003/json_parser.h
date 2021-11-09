@@ -159,8 +159,8 @@ inline bool _ParseString(std::string &out, InputSource<Iter> &in) {
 }
 
 class ParseContext;
-template <typename Iter>
-inline bool _ParseArray(ParseContext &context, InputSource<Iter> &in) {
+template <typename Context, typename Iter>
+inline bool _ParseArray(Context &context, InputSource<Iter> &in) {
     if (!context.ParseArrayStart()) {
         return false;
     }
@@ -185,8 +185,8 @@ inline bool _ParseArray(ParseContext &context, InputSource<Iter> &in) {
     return false;
 }
 
-template <typename Iter>
-inline bool _ParseObject(ParseContext &context, InputSource<Iter> &in) {
+template <typename Context, typename Iter>
+inline bool _ParseObject(Context &context, InputSource<Iter> &in) {
     if (!context.ParseObjectStart()) {
         return false;
     }
@@ -246,8 +246,8 @@ bool _IsValidInt64(std::intmax_t value, const std::string &value_str, char *endp
     return endp == limit;
 }
 
-template <typename Iter>
-inline bool _Parse(ParseContext &context, InputSource<Iter> &in) {
+template <typename Context, typename Iter>
+inline bool _Parse(Context &context, InputSource<Iter> &in) {
     in.SkipWhiteSpace();
 
     int ch = in.GetChar();
