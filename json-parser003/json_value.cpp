@@ -40,7 +40,7 @@ JsonValue::JsonValue(double value) : type_(JsonType::kNumber), u_({}) {
 }
 
 JsonValue::JsonValue(std::int64_t value) : type_(JsonType::kInteger), u_({}) {
-    u_.number_ = value;
+    u_.int64_ = value;
 }
 
 JsonValue::JsonValue(const std::string &value) : type_(JsonType::kString), u_({}) {
@@ -69,6 +69,44 @@ JsonValue::JsonValue(const JsonObject &value) : type_(JsonType::kObject), u_({})
 
 JsonValue::JsonValue(JsonObject &&value) : type_(JsonType::kObject), u_({}) {
     u_.object_ = new JsonObject(std::move(value));
+}
+
+JsonValue::JsonValue(const JsonValue &other) : type_(other.type_), u_({}) {
+    switch (type_) {
+    case JsonType::kString:
+        u_.string_ = new std::string(*other.u_.string_);
+        break;
+    case JsonType::kArray:
+        u_.array_ = new JsonArray(*other.u_.array_);
+        break;
+    case JsonType::kObject:
+        u_.object_ = new JsonObject(*other.u_.object_);
+        break;
+    default:
+        u_ = other.u_;
+        break;
+    }
+}
+
+JsonValue &JsonValue::operator=(const JsonValue &other) {
+    if (this != &other) {
+        JsonValue tmp(other);
+        std::swap(type_, tmp.type_);
+        std::swap(u_, tmp.u_);
+    }
+
+    return *this;
+}
+
+JsonValue::JsonValue(JsonValue &&other) noexcept {
+    std::swap(type_, other.type_);
+    std::swap(u_, other.u_);
+}
+
+JsonValue &JsonValue::operator=(JsonValue &&other) noexcept {
+    std::swap(type_, other.type_);
+    std::swap(u_, other.u_);
+    return *this;
 }
 
 JsonValue::~JsonValue() {
@@ -105,6 +143,10 @@ bool JsonValue::IsNumber() const noexcept {
 
 bool JsonValue::IsInteger() const noexcept {
     return type_ == JsonType::kInteger;
+}
+
+bool JsonValue::IsString() const noexcept {
+    return type_ == JsonType::kString;
 }
 
 bool JsonValue::IsArray() const noexcept {

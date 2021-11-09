@@ -333,9 +333,8 @@ class ParseContext {
     template <typename Iter>
     bool ParseString(InputSource<Iter> &in) {
         *value_ = JsonValue(JsonType::kString);
-
-        std::string &str_value = value_->Get<std::string>();
-        return _ParseString(str_value, in);
+        std::string &str = value_->Get<std::string>();
+        return _ParseString(str, in);
     }
 
     bool ParseArrayStart() {

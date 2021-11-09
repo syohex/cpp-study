@@ -54,6 +54,10 @@ class JsonValue {
     explicit JsonValue(const JsonObject &value);
     explicit JsonValue(JsonObject &&value);
 
+    JsonValue(const JsonValue &other);
+    JsonValue &operator=(const JsonValue &other);
+    JsonValue(JsonValue &&other) noexcept;
+    JsonValue &operator=(JsonValue &&other) noexcept;
     ~JsonValue();
 
     // Predicate
@@ -61,6 +65,7 @@ class JsonValue {
     bool IsBoolean() const noexcept;
     bool IsNumber() const noexcept;
     bool IsInteger() const noexcept;
+    bool IsString() const noexcept;
     bool IsArray() const noexcept;
     bool IsObject() const noexcept;
 
@@ -95,7 +100,7 @@ class JsonValue {
 
 #define IS(c_type, json_type)                                                                                                      \
     template <>                                                                                                                    \
-    inline bool JsonValue::Is<c_type>() const noexcept {                                                                                    \
+    inline bool JsonValue::Is<c_type>() const noexcept {                                                                           \
         return type_ == (json_type);                                                                                               \
     }
 
@@ -112,12 +117,12 @@ IS(JsonObject, JsonType::kObject)
     template <>                                                                                                                    \
     inline const c_type &JsonValue::Get<c_type>() const {                                                                          \
         JSON_ASSERT(Is<c_type>());                                                                                                 \
-        return (var);                                                                                                              \
+        return var;                                                                                                                \
     }                                                                                                                              \
     template <>                                                                                                                    \
     inline c_type &JsonValue::Get<c_type>() {                                                                                      \
         JSON_ASSERT(Is<c_type>());                                                                                                 \
-        return (var);                                                                                                              \
+        return var;                                                                                                                \
     }
 
 GET(bool, u_.boolean_)
